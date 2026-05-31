@@ -32,6 +32,13 @@ poetry run ruff check .
 poetry run mypy .
 ```
 
+## Arbetsflöde
+
+För att garantera kodkvalitet och att testerna alltid passerar tillämpas följande regler:
+- **PR-krav:** All ny kod och alla ändringar ska ske via en Pull Request (PR). Direktpush till `main` är blockerad.
+- **CI-verifiering:** CI-pipelinen (`ci.yml`) körs automatiskt på varje PR. Testerna och linting-stegen (Ruff, Mypy) *måste* vara gröna innan en PR får mergas.
+- **Statuskontroller:** Mergning till `main` kräver att statuskontrollen `test` har passerat.
+
 ## Arkitektur
 Projektet är strukturerat enligt Clean Architecture:
 - `app/domain`: Ren affärslogik och interfaces.
