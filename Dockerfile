@@ -1,4 +1,4 @@
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -21,10 +21,10 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 WORKDIR $PYSETUP_PATH
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --no-dev
+RUN poetry install --only main
 
 # Final image
-FROM python:3.11-slim as runtime
+FROM python:3.11-slim AS runtime
 
 ENV VENV_PATH="/opt/pysetup/.venv"
 ENV PATH="$VENV_PATH/bin:$PATH"
