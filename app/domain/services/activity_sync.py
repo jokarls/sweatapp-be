@@ -1,0 +1,84 @@
+import logging
+from datetime import datetime
+
+from app.domain.interfaces import (
+    IActivityRepository,
+    IStravaClient,
+    IUserRepository,
+    IWeatherProvider,
+)
+from app.domain.models import Activity, ActivityStatus
+from app.domain.services.strava_auth import StravaAuthService
+
+logger = logging.getLogger(__name__)
+
+class ActivitySyncService:
+    def __init__(
+        self,
+        activity_repo: IActivityRepository,
+        user_repo: IUserRepository,
+        strava_auth: StravaAuthService,
+        strava_client: IStravaClient,
+        weather_provider: IWeatherProvider,
+    ):
+        self.activity_repo = activity_repo
+        self.user_repo = user_repo
+        self.strava_auth = strava_auth
+        self.strava_client = strava_client
+        self.weather_provider = weather_provider
+
+    async def sync_activity(self, strava_activity_id: int, strava_athlete_id: int) -> None:
+        # 1. Find user
+        user = await self.user_repo.get_by_strava_athlete_id(strava_athlete_id)
+        if not user:
+            logger.warning(f"No user found for Strava athlete {strava_athlete_id}")
+            return
+
+        # 2. Get access token
+        access_token = await self.strava_auth.get_valid_access_token(user.id)
+
+        # 3. Fetch activity details
+        strava_data = await self.strava_client.get_activity_details(
+            strava_activity_id, access_token
+        )
+
+        # 4. Fetch weather (if location available)
+        temp, humidity = None, None
+        start_latlng = strava_data.get("start_latlng")
+        if start_latlng and len(start_latlng) == 2:
+            try:
+                # Strava provides start_date as ISO string
+                start_date = datetime.fromisoformat(
+                    strava_data["start_date"].replace("Z", "+00:00")
+                )
+                weather = await self.weather_provider.get_weather(
+                    lat=start_latlng[0],
+                    lon=start_latlng[1],
+                    timestamp=int(start_date.timestamp())
+                )
+                temp = weather.get("temp")
+                humidity = weather.get("humidity")
+            except Exception as e:
+                logger.error(f"Failed to fetch weather: {e}")
+
+        # 5. Create Activity entity
+        activity = Activity(
+            user_id=user.id,
+            strava_id=strava_activity_id,
+            activity_type=strava_data.get("type", "Unknown"),
+            start_date=datetime.fromisoformat(
+                strava_data["start_date"].replace("Z", "+00:00")
+            ),
+            duration_seconds=strava_data.get("elapsed_time", 0),
+            avg_heartrate=strava_data.get("average_heartrate"),
+            relative_effort=strava_data.get("suffer_score"),
+            temp_celsius_api=temp,
+            humidity_api=humidity,
+            status=ActivityStatus.PENDING
+        )
+
+        # 6. Save to DB
+        await self.activity_repo.save(activity)
+        logger.info(f"Successfully synced activity {strava_activity_id} for user {user.id}")
+
+        # 7. TODO: Send Push Notification

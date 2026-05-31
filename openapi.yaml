@@ -1,0 +1,227 @@
+openapi: 3.0.3
+info:
+  title: SweatCheck API
+  description: API for tracking sweat loss and fluid strategy by integrating Strava data with manual weight logs.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /activities:
+    get:
+      summary: List activities
+      description: Returns a list of activities for the authenticated user, sorted by date descending.
+      tags:
+        - Activities
+      responses:
+        '200':
+          description: A list of activities.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+
+  /activities/{id}:
+    get:
+      summary: Get activity details
+      tags:
+        - Activities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Activity details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '404':
+          description: Activity not found.
+
+    patch:
+      summary: Update activity with manual logs
+      description: Update the activity with weight, fluid intake, and other manual inputs.
+      tags:
+        - Activities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityUpdate'
+      responses:
+        '200':
+          description: Activity updated and sweat loss recalculated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '400':
+          description: Invalid input data.
+
+  /user/profile:
+    get:
+      summary: Get user profile
+      tags:
+        - User
+      responses:
+        '200':
+          description: The user profile and settings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/stats:
+    get:
+      summary: Get sweat profile stats
+      description: Returns aggregated sweat rates grouped by temperature and intensity zones.
+      tags:
+        - User
+      responses:
+        '200':
+          description: Aggregated sweat stats.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SweatStats'
+
+components:
+  schemas:
+    Activity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        strava_id:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum: [PENDING, COMPLETED]
+        activity_type:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        duration_seconds:
+          type: integer
+        avg_heartrate:
+          type: number
+          nullable: true
+        relative_effort:
+          type: integer
+          nullable: true
+        is_indoor:
+          type: boolean
+        ignore_for_profile:
+          type: boolean
+        # Weather API Data
+        temp_celsius_api:
+          type: number
+          nullable: true
+        humidity_api:
+          type: integer
+          nullable: true
+        # User Data
+        weight_before_user:
+          type: number
+          nullable: true
+        weight_after_user:
+          type: number
+          nullable: true
+        fluid_intake_ml_user:
+          type: integer
+          nullable: true
+        bathroom_visits_user:
+          type: integer
+        clothing_index_user:
+          type: integer
+          nullable: true
+        temp_celsius_user:
+          type: number
+          nullable: true
+        humidity_user:
+          type: integer
+          nullable: true
+        # Calculated
+        total_sweat_loss_ml:
+          type: integer
+          nullable: true
+        sweat_rate_ml_per_hour:
+          type: number
+          nullable: true
+
+    ActivityUpdate:
+      type: object
+      properties:
+        is_indoor:
+          type: boolean
+        ignore_for_profile:
+          type: boolean
+        weight_before_user:
+          type: number
+        weight_after_user:
+          type: number
+        fluid_intake_ml_user:
+          type: integer
+        bathroom_visits_user:
+          type: integer
+        clothing_index_user:
+          type: integer
+        temp_celsius_user:
+          type: number
+        humidity_user:
+          type: integer
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        strava_athlete_id:
+          type: integer
+          format: int64
+        last_known_weight:
+          type: number
+        weight_unit:
+          type: string
+        fluid_unit:
+          type: string
+
+    SweatStats:
+      type: object
+      properties:
+        zones:
+          type: array
+          items:
+            $ref: '#/components/schemas/SweatZone'
+
+    SweatZone:
+      type: object
+      properties:
+        temp_range:
+          type: string
+          example: "15-20°C"
+        avg_sweat_rate:
+          type: number
+        activity_count:
+          type: integer
