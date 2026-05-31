@@ -21,7 +21,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 WORKDIR $PYSETUP_PATH
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --only main
+RUN poetry install --only main --no-root
 
 # Final image
 FROM python:3.11-slim AS runtime
@@ -31,8 +31,13 @@ ENV PATH="$VENV_PATH/bin:$PATH"
 
 WORKDIR /app
 
+# Copy venv from builder
 COPY --from=builder $VENV_PATH $VENV_PATH
-COPY . .
+
+# Copy application code and resources
+COPY app/ ./app/
+COPY sql/ ./sql/
+COPY openapi.yaml .
 
 EXPOSE 8000
 
