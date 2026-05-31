@@ -16,20 +16,24 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Shutdown: Close DB pool
     await app.state.pool.close()
 
+
 app = FastAPI(
     title="SweatCheck API",
     description="API for tracking sweat loss and fluid strategy",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.include_router(activities.router, prefix="/api/v1")
 app.include_router(webhooks.router, prefix="/api/v1")
 
+
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

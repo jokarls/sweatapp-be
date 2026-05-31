@@ -8,12 +8,11 @@ def test_domain_layer_isolation():
     domain_path = Path(__file__).parent.parent.parent / "app" / "domain"
     for file in domain_path.glob("*.py"):
         content = file.read_text()
-        assert "app.api" not in content, (
-            f"Domain file {file.name} imports from api"
-        )
-        assert "app.infrastructure" not in content, (
-            f"Domain file {file.name} imports from infrastructure"
-        )
+        assert "app.api" not in content, f"Domain file {file.name} imports from api"
+        assert (
+            "app.infrastructure" not in content
+        ), f"Domain file {file.name} imports from infrastructure"
+
 
 def test_api_layer_isolation():
     """
@@ -23,9 +22,10 @@ def test_api_layer_isolation():
     api_path = Path(__file__).parent.parent.parent / "app" / "api"
     for file in api_path.glob("**/*.py"):
         content = file.read_text()
-        assert "app.infrastructure" not in content, (
-            f"API file {file.name} imports from infrastructure"
-        )
+        assert (
+            "app.infrastructure" not in content
+        ), f"API file {file.name} imports from infrastructure"
+
 
 def test_infrastructure_layer_dependency():
     """

@@ -24,6 +24,9 @@ testcontainers = {extras = ["postgresql"], version = "^3.7.1"}
 httpx = "^0.25.1"
 respx = "^0.20.2"
 
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

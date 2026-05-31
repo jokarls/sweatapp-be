@@ -12,7 +12,7 @@ class StravaClient(IStravaClient):
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{self.BASE_URL}/activities/{activity_id}",
-                headers={"Authorization": f"Bearer {access_token}"}
+                headers={"Authorization": f"Bearer {access_token}"},
             )
             response.raise_for_status()
             return cast(dict[str, Any], response.json())
@@ -27,8 +27,8 @@ class StravaClient(IStravaClient):
                     "client_id": client_id,
                     "client_secret": client_secret,
                     "refresh_token": refresh_token,
-                    "grant_type": "refresh_token"
-                }
+                    "grant_type": "refresh_token",
+                },
             )
             response.raise_for_status()
             return cast(dict[str, Any], response.json())
