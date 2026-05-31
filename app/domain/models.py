@@ -8,6 +8,7 @@ class ActivityStatus(str, Enum):
     PENDING = "PENDING"
     COMPLETED = "COMPLETED"
 
+
 @dataclass
 class Activity:
     user_id: UUID
@@ -17,28 +18,28 @@ class Activity:
     duration_seconds: int
     id: UUID = field(default_factory=uuid4)
     status: ActivityStatus = ActivityStatus.PENDING
-    
+
     # Optional metrics from Strava/API
     avg_heartrate: float | None = None
     relative_effort: int | None = None
     temp_celsius_api: float | None = None
     humidity_api: int | None = None
-    
+
     # Manual Input
     weight_before_user: float | None = None
     weight_after_user: float | None = None
     fluid_intake_ml_user: int | None = None
     bathroom_visits_user: int = 0
     clothing_index_user: int | None = None
-    
+
     # Manual Weather Overrides
     temp_celsius_user: float | None = None
     humidity_user: int | None = None
-    
+
     # Computed Result
     total_sweat_loss_ml: int | None = None
     sweat_rate_ml_per_hour: float | None = None
-    
+
     # Metadata
     is_indoor: bool = False
     ignore_for_profile: bool = False
@@ -54,19 +55,20 @@ class Activity:
 
         weight_diff_kg = self.weight_before_user - self.weight_after_user
         weight_diff_ml = weight_diff_kg * 1000
-        
+
         # Estimate 250ml per bathroom visit as a starting point
         bathroom_loss_ml = self.bathroom_visits_user * 250
-        
+
         fluid_intake = self.fluid_intake_ml_user or 0
-        
+
         self.total_sweat_loss_ml = int(weight_diff_ml + fluid_intake - bathroom_loss_ml)
-        
+
         if self.duration_seconds > 0:
             hours = self.duration_seconds / 3600
             self.sweat_rate_ml_per_hour = round(self.total_sweat_loss_ml / hours, 2)
-        
+
         self.status = ActivityStatus.COMPLETED
+
 
 @dataclass
 class User:
@@ -77,6 +79,7 @@ class User:
     weight_unit: str = "kg"
     fluid_unit: str = "ml"
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
 
 @dataclass
 class StravaToken:

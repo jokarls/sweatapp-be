@@ -9,6 +9,7 @@ class ActivityStatus(str, Enum):
     PENDING = "PENDING"
     COMPLETED = "COMPLETED"
 
+
 class ActivityDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -22,11 +23,11 @@ class ActivityDTO(BaseModel):
     relative_effort: int | None = None
     is_indoor: bool
     ignore_for_profile: bool
-    
+
     # Weather API Data
     temp_celsius_api: float | None = None
     humidity_api: int | None = None
-    
+
     # User Data
     weight_before_user: float | None = None
     weight_after_user: float | None = None
@@ -35,10 +36,11 @@ class ActivityDTO(BaseModel):
     clothing_index_user: int | None = None
     temp_celsius_user: float | None = None
     humidity_user: int | None = None
-    
+
     # Calculated
     total_sweat_loss_ml: int | None = None
     sweat_rate_ml_per_hour: float | None = None
+
 
 class ActivityUpdateDTO(BaseModel):
     is_indoor: bool | None = None
@@ -51,6 +53,7 @@ class ActivityUpdateDTO(BaseModel):
     temp_celsius_user: float | None = None
     humidity_user: int | None = None
 
+
 class UserDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -60,10 +63,12 @@ class UserDTO(BaseModel):
     weight_unit: str
     fluid_unit: str
 
+
 class SweatZoneDTO(BaseModel):
     temp_range: str
     avg_sweat_rate: float
     activity_count: int
+
 
 class SweatStatsDTO(BaseModel):
     zones: list[SweatZoneDTO]

@@ -18,21 +18,21 @@ async def test_full_activity_sync_flow(db_pool):
     activity_repo = PostgresActivityRepository(db_pool)
     user_repo = PostgresUserRepository(db_pool)
     token_repo = PostgresTokenRepository(db_pool)
-    
+
     # 2. Setup User & Token in DB
     user_id = uuid4()
     strava_athlete_id = 999
     user = User(id=user_id, strava_athlete_id=strava_athlete_id, email="test@example.com")
     await user_repo.save(user)
-    
+
     token = StravaToken(
         user_id=user_id,
         access_token="valid_access",
         refresh_token="valid_refresh",
-        expires_at=datetime.now(UTC) + timedelta(hours=1)
+        expires_at=datetime.now(UTC) + timedelta(hours=1),
     )
     await token_repo.save(token)
-    
+
     # 3. Setup Mocks
     strava_client = MagicMock()
     strava_data = {
@@ -42,25 +42,25 @@ async def test_full_activity_sync_flow(db_pool):
         "elapsed_time": 3600,
         "average_heartrate": 150.0,
         "suffer_score": 50,
-        "start_latlng": [59.3293, 18.0686]
+        "start_latlng": [59.3293, 18.0686],
     }
     strava_client.get_activity_details = AsyncMock(return_value=strava_data)
-    
+
     weather_provider = MagicMock()
     weather_provider.get_weather = AsyncMock(return_value={"temp": 20.5, "humidity": 45})
-    
+
     strava_auth = StravaAuthService(token_repo, strava_client)
-    
+
     # 4. Run Service
     sync_service = ActivitySyncService(
         activity_repo, user_repo, strava_auth, strava_client, weather_provider
     )
-    
+
     await sync_service.sync_activity(12345, strava_athlete_id)
-    
+
     # 5. Verify Results in DB
     saved_activity = await activity_repo.get_by_strava_id(12345)
-    
+
     assert saved_activity is not None
     assert saved_activity.user_id == user_id
     assert saved_activity.activity_type == "Run"

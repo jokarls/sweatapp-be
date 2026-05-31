@@ -8,6 +8,7 @@ from app.domain.interfaces import IActivityRepository
 
 router = APIRouter(prefix="/activities", tags=["Activities"])
 
+
 @router.get("", response_model=list[ActivityDTO])
 async def list_activities(
     limit: int = 20,
@@ -16,6 +17,7 @@ async def list_activities(
     # For now, we don't have a user context, so we'd need a user_id
     # In a real app, this would come from the auth token
     return []
+
 
 @router.get("/{id}", response_model=ActivityDTO)
 async def get_activity(
@@ -26,6 +28,7 @@ async def get_activity(
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
     return ActivityDTO.model_validate(activity)
+
 
 @router.patch("/{id}", response_model=ActivityDTO)
 async def update_activity(

@@ -16,4 +16,5 @@ class Settings(BaseSettings):
     # OpenWeatherMap
     OPENWEATHERMAP_API_KEY: str = ""
 
+
 settings = Settings()

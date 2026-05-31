@@ -12,6 +12,7 @@ from app.domain.services.strava_auth import StravaAuthService
 
 logger = logging.getLogger(__name__)
 
+
 class ActivitySyncService:
     def __init__(
         self,
@@ -52,9 +53,7 @@ class ActivitySyncService:
                     strava_data["start_date"].replace("Z", "+00:00")
                 )
                 weather = await self.weather_provider.get_weather(
-                    lat=start_latlng[0],
-                    lon=start_latlng[1],
-                    timestamp=int(start_date.timestamp())
+                    lat=start_latlng[0], lon=start_latlng[1], timestamp=int(start_date.timestamp())
                 )
                 temp = weather.get("temp")
                 humidity = weather.get("humidity")
@@ -66,15 +65,13 @@ class ActivitySyncService:
             user_id=user.id,
             strava_id=strava_activity_id,
             activity_type=strava_data.get("type", "Unknown"),
-            start_date=datetime.fromisoformat(
-                strava_data["start_date"].replace("Z", "+00:00")
-            ),
+            start_date=datetime.fromisoformat(strava_data["start_date"].replace("Z", "+00:00")),
             duration_seconds=strava_data.get("elapsed_time", 0),
             avg_heartrate=strava_data.get("average_heartrate"),
             relative_effort=strava_data.get("suffer_score"),
             temp_celsius_api=temp,
             humidity_api=humidity,
-            status=ActivityStatus.PENDING
+            status=ActivityStatus.PENDING,
         )
 
         # 6. Save to DB
