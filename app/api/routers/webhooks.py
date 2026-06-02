@@ -7,7 +7,7 @@ from app.domain.services.activity_sync import ActivitySyncService
 router = APIRouter(prefix="/webhooks", tags=["Webhooks"])
 
 
-@router.get("/strava")
+@router.get("/strava", response_model=None)
 async def validate_webhook(
     mode: str = Query(..., alias="hub.mode"),
     token: str = Query(..., alias="hub.verify_token"),
