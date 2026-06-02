@@ -124,6 +124,7 @@ jobs:
             type=sha,prefix=sha-
 
       - name: Build and push Docker image
+        id: build-image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -132,3 +133,21 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: sweatcheck-${{ env.ENVIRONMENT }}-backend
+          region: ${{ vars.REGION }}
+          image: ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sweatcheck-${{ env.ENVIRONMENT }}-backend/backend@${{ steps.build-image.outputs.digest }}
+          # GCP Cloud Run automatically preserves existing environment variables and secrets (like DATABASE_URL)
+          # that were already set up on the service via Terraform, so you do not need to re-list them here.
+          # If you want to declare or override other environment variables from this pipeline, add them under env_vars below:
+          env_vars: |
+            STRAVA_CLIENT_ID=${{ secrets.STRAVA_CLIENT_ID }}
+            STRAVA_CLIENT_SECRET=${{ secrets.STRAVA_CLIENT_SECRET }}
+            STRAVA_WEBHOOK_VERIFY_TOKEN=${{ secrets.STRAVA_WEBHOOK_VERIFY_TOKEN }}
+            OPENWEATHERMAP_API_KEY=${{ secrets.OPENWEATHERMAP_API_KEY }}
+
+

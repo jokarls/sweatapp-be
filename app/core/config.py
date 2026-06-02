@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     STRAVA_CLIENT_ID: str = ""
     STRAVA_CLIENT_SECRET: str = ""
     STRAVA_WEBHOOK_VERIFY_TOKEN: str = "default_verify_token"
-    STRAVA_REDIRECT_URI: str = "http://localhost:8000/api/v1/strava/callback"
 
     # OpenWeatherMap
     OPENWEATHERMAP_API_KEY: str = ""
