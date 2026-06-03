@@ -28,11 +28,9 @@ async def db_pool(postgres_container):
 
     pool = await create_pool(connection_url)
 
-    # Run migrations/init script
-    with open("sql/init.sql") as f:
-        sql = f.read()
-        async with pool.acquire() as conn:
-            await conn.execute(sql)
+    # Run database migrations
+    from app.infrastructure.db.migrations import run_migrations
+    await run_migrations(pool)
 
     yield pool
     await pool.close()
