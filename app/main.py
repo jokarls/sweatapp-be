@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from asyncpg import create_pool
 from fastapi import FastAPI
 
-from app.api.routers import activities, webhooks
+from app.api.routers import activities, auth, webhooks
 from app.core.config import settings
 
 
@@ -24,6 +24,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(activities.router, prefix="/api/v1")
 app.include_router(webhooks.router, prefix="/api/v1")
 

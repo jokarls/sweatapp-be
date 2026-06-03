@@ -73,7 +73,6 @@ class Activity:
 @dataclass
 class User:
     strava_athlete_id: int
-    email: str
     id: UUID = field(default_factory=uuid4)
     last_known_weight: float | None = None
     weight_unit: str = "kg"

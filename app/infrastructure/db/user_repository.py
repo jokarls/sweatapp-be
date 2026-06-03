@@ -45,7 +45,6 @@ class PostgresUserRepository(IUserRepository):
         return User(
             id=row["id"],
             strava_athlete_id=row["strava_athlete_id"],
-            email="TODO@example.com",  # Email not in schema yet but in entity
             last_known_weight=row["last_known_weight"],
             weight_unit=row["weight_unit"],
             fluid_unit=row["fluid_unit"],

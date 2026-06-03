@@ -63,3 +63,9 @@ class IStravaClient(ABC):
         self, client_id: str, client_secret: str, refresh_token: str
     ) -> dict[str, Any]:
         pass
+
+    @abstractmethod
+    async def exchange_authorization_code(
+        self, client_id: str, client_secret: str, code: str
+    ) -> dict[str, Any]:
+        pass
