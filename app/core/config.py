@@ -15,5 +15,10 @@ class Settings(BaseSettings):
     # OpenWeatherMap
     OPENWEATHERMAP_API_KEY: str = ""
 
+    # JWT Authentication
+    JWT_SECRET_KEY: str = "your-fallback-secret-for-testing-only"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
+
 
 settings = Settings()

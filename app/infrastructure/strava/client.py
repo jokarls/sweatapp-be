@@ -32,3 +32,20 @@ class StravaClient(IStravaClient):
             )
             response.raise_for_status()
             return cast(dict[str, Any], response.json())
+
+    async def exchange_authorization_code(
+        self, client_id: str, client_secret: str, code: str
+    ) -> dict[str, Any]:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://www.strava.com/oauth/token",
+                data={
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "code": code,
+                    "grant_type": "authorization_code",
+                },
+            )
+            response.raise_for_status()
+            return cast(dict[str, Any], response.json())
+

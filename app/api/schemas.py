@@ -72,3 +72,14 @@ class SweatZoneDTO(BaseModel):
 
 class SweatStatsDTO(BaseModel):
     zones: list[SweatZoneDTO]
+
+
+class StravaLoginRequest(BaseModel):
+    code: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserDTO
+

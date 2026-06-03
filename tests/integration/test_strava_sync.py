@@ -22,7 +22,7 @@ async def test_full_activity_sync_flow(db_pool):
     # 2. Setup User & Token in DB
     user_id = uuid4()
     strava_athlete_id = 999
-    user = User(id=user_id, strava_athlete_id=strava_athlete_id, email="test@example.com")
+    user = User(id=user_id, strava_athlete_id=strava_athlete_id)
     await user_repo.save(user)
 
     token = StravaToken(
