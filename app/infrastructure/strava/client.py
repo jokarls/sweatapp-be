@@ -30,7 +30,12 @@ class StravaClient(IStravaClient):
                     "grant_type": "refresh_token",
                 },
             )
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as e:
+                raise ValueError(
+                    f"Strava token refresh failed. Status: {response.status_code}, Body: {response.text}"
+                ) from e
             return cast(dict[str, Any], response.json())
 
     async def exchange_authorization_code(
@@ -46,6 +51,11 @@ class StravaClient(IStravaClient):
                     "grant_type": "authorization_code",
                 },
             )
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as e:
+                raise ValueError(
+                    f"Strava token exchange failed. Status: {response.status_code}, Body: {response.text}"
+                ) from e
             return cast(dict[str, Any], response.json())
 

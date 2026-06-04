@@ -8,6 +8,9 @@ servers:
   - url: http://localhost:8000
     description: Local development server
 
+security:
+  - BearerAuth: []
+
 paths:
   /activities:
     get:
@@ -102,7 +105,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/SweatStats'
 
+  /auth/strava:
+    post:
+      summary: Exchange Strava code for local JWT token
+      description: Exchanges a Strava authorization code for local tokens, logs in or registers the user, and returns a local JWT access token.
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StravaLoginRequest'
+      responses:
+        '200':
+          description: Successfully authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Strava authentication failed.
+
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Activity:
       type: object
@@ -225,3 +256,27 @@ components:
           type: number
         activity_count:
           type: integer
+
+    StravaLoginRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          example: "strava_auth_code_xyz"
+
+    TokenResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - user
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          default: "bearer"
+        user:
+          $ref: '#/components/schemas/User'
