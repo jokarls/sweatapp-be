@@ -34,7 +34,8 @@ class StravaClient(IStravaClient):
                 response.raise_for_status()
             except httpx.HTTPStatusError as e:
                 raise ValueError(
-                    f"Strava token refresh failed. Status: {response.status_code}, Body: {response.text}"
+                    "Strava token refresh failed. "
+                    f"Status: {response.status_code}, Body: {response.text}"
                 ) from e
             return cast(dict[str, Any], response.json())
 
@@ -55,7 +56,8 @@ class StravaClient(IStravaClient):
                 response.raise_for_status()
             except httpx.HTTPStatusError as e:
                 raise ValueError(
-                    f"Strava token exchange failed. Status: {response.status_code}, Body: {response.text}"
+                    "Strava token exchange failed. "
+                    f"Status: {response.status_code}, Body: {response.text}"
                 ) from e
             return cast(dict[str, Any], response.json())
 
