@@ -43,11 +43,12 @@ async def test_full_activity_sync_flow(db_pool):
         "average_heartrate": 150.0,
         "suffer_score": 50,
         "start_latlng": [59.3293, 18.0686],
+        "average_temp": 20.5,
     }
     strava_client.get_activity_details = AsyncMock(return_value=strava_data)
 
     weather_provider = MagicMock()
-    weather_provider.get_weather = AsyncMock(return_value={"temp": 20.5, "humidity": 45})
+    weather_provider.get_weather = AsyncMock(return_value={"temp": 15.0, "humidity": 45})
 
     strava_auth = StravaAuthService(token_repo, strava_client)
 

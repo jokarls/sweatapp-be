@@ -49,22 +49,28 @@ class ActivitySyncService:
             strava_activity_id, access_token
         )
 
-        # 4. Fetch weather (if location available)
-        temp, humidity = None, None
-        start_latlng = strava_data.get("start_latlng")
-        if start_latlng and len(start_latlng) == 2:
-            try:
-                # Strava provides start_date as ISO string
-                start_date = datetime.fromisoformat(
-                    strava_data["start_date"].replace("Z", "+00:00")
-                )
-                weather = await self.weather_provider.get_weather(
-                    lat=start_latlng[0], lon=start_latlng[1], timestamp=int(start_date.timestamp())
-                )
-                temp = weather.get("temp")
-                humidity = weather.get("humidity")
-            except Exception as e:
-                logger.error(f"Failed to fetch weather: {e}")
+        # 4. Extract temperature from Strava activity details
+        temp = strava_data.get("average_temp")
+
+        humidity = None
+
+        # Fallback/enrichment via Weather Provider for humidity and missing temperature
+        if temp is None or humidity is None:
+            start_latlng = strava_data.get("start_latlng")
+            if start_latlng and len(start_latlng) == 2:
+                try:
+                    # Strava provides start_date as ISO string
+                    start_date = datetime.fromisoformat(
+                        strava_data["start_date"].replace("Z", "+00:00")
+                    )
+                    weather = await self.weather_provider.get_weather(
+                        lat=start_latlng[0], lon=start_latlng[1], timestamp=int(start_date.timestamp())
+                    )
+                    if temp is None:
+                        temp = weather.get("temp")
+                    humidity = weather.get("humidity")
+                except Exception as e:
+                    logger.error(f"Failed to fetch weather fallback: {e}")
 
         # 5. Create Activity entity
         activity = Activity(
