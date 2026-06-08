@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -21,9 +22,30 @@ class PostgresActivityRepository(IActivityRepository):
         row = await self.pool.fetchrow(query, strava_id)
         return self._map_row_to_activity(row) if row else None
 
-    async def list_by_user(self, user_id: UUID, limit: int = 20) -> list[Activity]:
-        query = "SELECT * FROM activity WHERE user_id = $1 ORDER BY start_date DESC LIMIT $2"
-        rows = await self.pool.fetch(query, user_id, limit)
+    async def list_by_user(
+        self,
+        user_id: UUID,
+        limit: int = 20,
+        before_start_date: datetime | None = None,
+        before_id: UUID | None = None,
+    ) -> list[Activity]:
+        if before_start_date and before_id:
+            query = """
+                SELECT * FROM activity 
+                WHERE user_id = $1 
+                  AND (start_date < $3 OR (start_date = $3 AND id < $4))
+                ORDER BY start_date DESC, id DESC 
+                LIMIT $2
+            """
+            rows = await self.pool.fetch(query, user_id, limit, before_start_date, before_id)
+        else:
+            query = """
+                SELECT * FROM activity 
+                WHERE user_id = $1 
+                ORDER BY start_date DESC, id DESC 
+                LIMIT $2
+            """
+            rows = await self.pool.fetch(query, user_id, limit)
         return [self._map_row_to_activity(row) for row in rows]
 
     async def save(self, activity: Activity) -> None:

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -15,7 +16,13 @@ class IActivityRepository(ABC):
         pass
 
     @abstractmethod
-    async def list_by_user(self, user_id: UUID, limit: int = 20) -> list[Activity]:
+    async def list_by_user(
+        self,
+        user_id: UUID,
+        limit: int = 20,
+        before_start_date: datetime | None = None,
+        before_id: UUID | None = None,
+    ) -> list[Activity]:
         pass
 
     @abstractmethod
