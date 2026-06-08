@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 
-class ActivityStatus(str, Enum):
+class ActivityStatus(StrEnum):
     PENDING = "PENDING"
     COMPLETED = "COMPLETED"
 

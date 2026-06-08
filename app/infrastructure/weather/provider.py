@@ -34,7 +34,7 @@ class OpenWeatherMapProvider(IWeatherProvider):
                 return {"temp": None, "humidity": None, "error": "Unauthorized / API Key issue"}
 
             response.raise_for_status()
-            data = cast(dict[str, Any], response.json())
+            data = cast("dict[str, Any]", response.json())
 
             # One Call 3.0 Time Machine returns 'data': [ { 'temp': ..., 'humidity': ... } ]
             results = data.get("data", [])
