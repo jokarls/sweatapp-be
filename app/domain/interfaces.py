@@ -29,6 +29,15 @@ class IActivityRepository(ABC):
     async def save(self, activity: Activity) -> None:
         pass
 
+    @abstractmethod
+    async def get_completed_by_user(self, user_id: UUID) -> list[Activity]:
+        """
+        Retrieves all valid completed activities for the user,
+        skipping those flagged with ignore_for_profile.
+        """
+        pass
+
+
 
 class IUserRepository(ABC):
     @abstractmethod

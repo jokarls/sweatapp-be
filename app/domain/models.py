@@ -61,7 +61,7 @@ class Activity:
 
         fluid_intake = self.fluid_intake_ml_user or 0
 
-        self.total_sweat_loss_ml = int(weight_diff_ml + fluid_intake - bathroom_loss_ml)
+        self.total_sweat_loss_ml = int(round(weight_diff_ml + fluid_intake - bathroom_loss_ml))
 
         if self.duration_seconds > 0:
             hours = self.duration_seconds / 3600
@@ -92,3 +92,24 @@ class StravaToken:
     @property
     def is_expired(self) -> bool:
         return datetime.now(UTC) >= self.expires_at
+
+
+@dataclass
+class BreakdownItem:
+    key: str
+    display_name: str
+    avg_sweat_rate_ml_h: float
+    activity_count: int
+
+
+@dataclass
+class SummaryStats:
+    overall_avg_sweat_rate_ml_h: float
+    total_activities_logged: int
+
+
+@dataclass
+class UserSweatStatistics:
+    summary: SummaryStats
+    breakdowns: dict[str, list[BreakdownItem]]
+
