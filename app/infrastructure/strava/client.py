@@ -15,7 +15,7 @@ class StravaClient(IStravaClient):
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             response.raise_for_status()
-            return cast(dict[str, Any], response.json())
+            return cast("dict[str, Any]", response.json())
 
     async def refresh_token(
         self, client_id: str, client_secret: str, refresh_token: str
@@ -37,7 +37,7 @@ class StravaClient(IStravaClient):
                     "Strava token refresh failed. "
                     f"Status: {response.status_code}, Body: {response.text}"
                 ) from e
-            return cast(dict[str, Any], response.json())
+            return cast("dict[str, Any]", response.json())
 
     async def exchange_authorization_code(
         self, client_id: str, client_secret: str, code: str
@@ -59,5 +59,5 @@ class StravaClient(IStravaClient):
                     "Strava token exchange failed. "
                     f"Status: {response.status_code}, Body: {response.text}"
                 ) from e
-            return cast(dict[str, Any], response.json())
+            return cast("dict[str, Any]", response.json())
 

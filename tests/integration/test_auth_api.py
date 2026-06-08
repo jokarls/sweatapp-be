@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 
 from app.dependencies import get_strava_client
 from app.domain.interfaces import IStravaClient
@@ -46,7 +46,7 @@ async def api_client(db_pool):
     # Override the Strava client dependency with our FakeStravaClient
     app.dependency_overrides[get_strava_client] = lambda: FakeStravaClient()
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
 
     # Clear overrides after the test
@@ -55,9 +55,9 @@ async def api_client(db_pool):
 
 @pytest.mark.asyncio
 async def test_unauthorized_endpoints(api_client: AsyncClient) -> None:
-    # Attempting to fetch activities without token should return 403
+    # Attempting to fetch activities without token should return 401
     response = await api_client.get("/api/v1/activities")
-    assert response.status_code == 403
+    assert response.status_code == 401
     assert response.json()["detail"] == "Not authenticated"
 
 

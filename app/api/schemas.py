@@ -1,11 +1,11 @@
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
 
-class ActivityStatus(str, Enum):
+class ActivityStatus(StrEnum):
     PENDING = "PENDING"
     COMPLETED = "COMPLETED"
 
