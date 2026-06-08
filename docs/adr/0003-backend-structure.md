@@ -58,6 +58,10 @@ backend/
 *   **Typkontroll:** Mypy (för statisk typsäkerhet i domänen och API:et).
 *   **Task Runner:** Poetry (t.ex. `poetry run ruff check .`).
 
+### 6. Felhantering (Error Handling Principles)
+*   **Ingen tyst dämpning av fel:** Kritiska beräkningar, parsingar eller avkodningar (t.ex. vid validering av paginerings-cursors) får aldrig dämpas tyst (t.ex. genom try-catch som returnerar `None`). Fel ska propageras explicit.
+*   **Tydlig feedback till klienten:** Felaktiga data eller korrupta requests ska resultera i explicita valideringsfel eller HTTP-undantag (t.ex. `400 Bad Request` med tydliga felmeddelanden), så att klienten kan agera på felet istället för att ignorera det.
+
 ## Konsekvenser
 *   **Ökad komplexitet:** Fler filer och interfaces krävs initialt.
 *   **Hög testbarhet:** Det blir extremt enkelt att byta ut t.ex. `asyncpg` mot en annan drivrutin eller mocka bort hela databasen för snabba tester.

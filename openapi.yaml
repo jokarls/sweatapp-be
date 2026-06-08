@@ -18,9 +18,27 @@ paths:
       description: Returns a list of activities for the authenticated user, sorted by date descending.
       tags:
         - Activities
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: Opaque cursor string for retrieving the next page of older activities.
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: A list of activities.
+          headers:
+            X-Next-Cursor:
+              schema:
+                type: string
+              description: Opaque cursor string to retrieve the next page.
           content:
             application/json:
               schema:
