@@ -107,7 +107,8 @@ async def test_activity_sync_skips_when_exists(db_pool):
         activity_repo, user_repo, strava_auth, strava_client, weather_provider
     )
 
-    # Calling sync_activity on an already existing activity should return gracefully without raising any duplicate exceptions or calling the client APIs
+    # Calling sync_activity on an already existing activity should return gracefully without raising any duplicate
+    # exceptions or calling the client APIs
     await sync_service.sync_activity(existing_activity_id, strava_athlete_id)
 
     # Verify that get_activity_details was not called
