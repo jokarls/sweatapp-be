@@ -146,6 +146,20 @@ paths:
         '400':
           description: Strava authentication failed.
 
+  /statistics:
+    get:
+      summary: Get user fluid loss statistics
+      description: Returns personalized aggregated fluid loss and sweat rate statistics, categorized dynamically by sport, temperature/environment, and clothing.
+      tags:
+        - Statistics
+      responses:
+        '200':
+          description: Dynamic fluid loss statistics breakdown.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSweatStatistics'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -298,3 +312,47 @@ components:
           default: "bearer"
         user:
           $ref: '#/components/schemas/User'
+
+    UserSweatStatistics:
+      type: object
+      required:
+        - summary
+        - breakdowns
+      properties:
+        summary:
+          $ref: '#/components/schemas/SummaryStats'
+        breakdowns:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/BreakdownItem'
+
+    SummaryStats:
+      type: object
+      required:
+        - overall_avg_sweat_rate_ml_h
+        - total_activities_logged
+      properties:
+        overall_avg_sweat_rate_ml_h:
+          type: number
+        total_activities_logged:
+          type: integer
+
+    BreakdownItem:
+      type: object
+      required:
+        - key
+        - display_name
+        - avg_sweat_rate_ml_h
+        - activity_count
+      properties:
+        key:
+          type: string
+        display_name:
+          type: string
+        avg_sweat_rate_ml_h:
+          type: number
+        activity_count:
+          type: integer
+
