@@ -29,6 +29,12 @@ class ActivitySyncService:
         self.weather_provider = weather_provider
 
     async def sync_activity(self, strava_activity_id: int, strava_athlete_id: int) -> None:
+        # Check if activity already exists in database
+        existing_activity = await self.activity_repo.get_by_strava_id(strava_activity_id)
+        if existing_activity:
+            logger.info(f"Activity {strava_activity_id} already exists. Skipping sync.")
+            return
+
         # 1. Find user
         user = await self.user_repo.get_by_strava_athlete_id(strava_athlete_id)
         if not user:
