@@ -83,3 +83,27 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     user: UserDTO
 
+
+class BreakdownItemDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    key: str
+    display_name: str
+    avg_sweat_rate_ml_h: float
+    activity_count: int
+
+
+class SummaryStatsDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    overall_avg_sweat_rate_ml_h: float
+    total_activities_logged: int
+
+
+class UserSweatStatisticsDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    summary: SummaryStatsDTO
+    breakdowns: dict[str, list[BreakdownItemDTO]]
+
+

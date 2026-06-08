@@ -104,6 +104,18 @@ class PostgresActivityRepository(IActivityRepository):
             activity.created_at,
         )
 
+    async def get_completed_by_user(self, user_id: UUID) -> list[Activity]:
+        query = """
+            SELECT * FROM activity 
+            WHERE user_id = $1 
+              AND status = 'COMPLETED' 
+              AND ignore_for_profile = FALSE
+              AND sweat_rate_ml_per_hour IS NOT NULL
+            ORDER BY start_date DESC
+        """
+        rows = await self.pool.fetch(query, user_id)
+        return [self._map_row_to_activity(row) for row in rows]
+
     def _map_row_to_activity(self, row: Any) -> Activity:
         return Activity(
             id=row["id"],
