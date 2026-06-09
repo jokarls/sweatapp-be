@@ -54,7 +54,10 @@ class ActivitySyncService:
         if temp is not None:
             logger.info(f"Retrieved average_temp={temp}°C from Strava activity details.")
         else:
-            logger.info("Strava activity details do not contain average_temp (likely recorded without a thermometer sensor).")
+            logger.info(
+                "Strava activity details do not contain average_temp "
+                "(likely recorded without a thermometer sensor)."
+            )
 
         humidity = None
 
@@ -67,7 +70,10 @@ class ActivitySyncService:
                     start_date = datetime.fromisoformat(
                         strava_data["start_date"].replace("Z", "+00:00")
                     )
-                    logger.info(f"Attempting weather fallback/enrichment for lat={start_latlng[0]}, lon={start_latlng[1]} at {start_date}")
+                    logger.info(
+                        f"Attempting weather fallback/enrichment for lat={start_latlng[0]}, "
+                        f"lon={start_latlng[1]} at {start_date}"
+                    )
                     weather = await self.weather_provider.get_weather(
                         lat=start_latlng[0], lon=start_latlng[1], timestamp=int(start_date.timestamp())
                     )
@@ -83,7 +89,10 @@ class ActivitySyncService:
                 except Exception as e:
                     logger.error(f"Failed to fetch weather fallback: {e}")
             else:
-                logger.warning("Cannot fetch fallback weather/humidity because activity start location (start_latlng) is missing or invalid.")
+                logger.warning(
+                    "Cannot fetch fallback weather/humidity because activity start location "
+                    "(start_latlng) is missing or invalid."
+                )
 
         logger.info(f"Final activity sync values: temp_celsius_api={temp}, humidity_api={humidity}")
 

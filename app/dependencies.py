@@ -4,8 +4,8 @@ from asyncpg import Pool
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.config import settings
 from app.core.security import decode_access_token
+from app.domain.interfaces import IWeatherProvider
 from app.domain.models import User
 from app.domain.services.activity_sync import ActivitySyncService
 from app.domain.services.strava_auth import StravaAuthService
@@ -13,7 +13,6 @@ from app.infrastructure.db.repository import PostgresActivityRepository
 from app.infrastructure.db.token_repository import PostgresTokenRepository
 from app.infrastructure.db.user_repository import PostgresUserRepository
 from app.infrastructure.strava.client import StravaClient
-from app.domain.interfaces import IWeatherProvider
 from app.infrastructure.weather.provider import OpenMeteoProvider
 
 oauth2_scheme = HTTPBearer()

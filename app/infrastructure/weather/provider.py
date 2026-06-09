@@ -1,4 +1,5 @@
 from typing import Any
+
 import httpx
 
 from app.domain.interfaces import IWeatherProvider
@@ -12,7 +13,7 @@ class OpenMeteoProvider(IWeatherProvider):
         Fetches historical weather data from Open-Meteo's free Archive API.
         No API key required.
         """
-        from datetime import datetime, UTC
+        from datetime import UTC, datetime
         dt = datetime.fromtimestamp(timestamp, tz=UTC)
         date_str = dt.date().isoformat()  # "YYYY-MM-DD"
         hour = dt.hour
