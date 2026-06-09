@@ -1,4 +1,9 @@
 import asyncio
+import os
+
+# Set default mock environment variables for test suite execution
+os.environ.setdefault("STRAVA_CLIENT_ID", "mock_strava_client_id")
+os.environ.setdefault("STRAVA_CLIENT_SECRET", "mock_strava_client_secret")
 
 import pytest
 import pytest_asyncio

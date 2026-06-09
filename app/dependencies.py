@@ -4,8 +4,8 @@ from asyncpg import Pool
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.config import settings
 from app.core.security import decode_access_token
+from app.domain.interfaces import IWeatherProvider
 from app.domain.models import User
 from app.domain.services.activity_sync import ActivitySyncService
 from app.domain.services.strava_auth import StravaAuthService
@@ -13,7 +13,7 @@ from app.infrastructure.db.repository import PostgresActivityRepository
 from app.infrastructure.db.token_repository import PostgresTokenRepository
 from app.infrastructure.db.user_repository import PostgresUserRepository
 from app.infrastructure.strava.client import StravaClient
-from app.infrastructure.weather.provider import OpenWeatherMapProvider
+from app.infrastructure.weather.provider import OpenMeteoProvider
 
 oauth2_scheme = HTTPBearer()
 
@@ -38,8 +38,8 @@ def get_strava_client() -> StravaClient:
     return StravaClient()
 
 
-def get_weather_provider() -> OpenWeatherMapProvider:
-    return OpenWeatherMapProvider(api_key=settings.OPENWEATHERMAP_API_KEY)
+def get_weather_provider() -> IWeatherProvider:
+    return OpenMeteoProvider()
 
 
 def get_strava_auth_service(
@@ -55,7 +55,7 @@ def get_activity_sync_service(
     user_repo: PostgresUserRepository = Depends(get_user_repo),
     strava_auth: StravaAuthService = Depends(get_strava_auth_service),
     strava_client: StravaClient = Depends(get_strava_client),
-    weather_provider: OpenWeatherMapProvider = Depends(get_weather_provider),
+    weather_provider: IWeatherProvider = Depends(get_weather_provider),
 ) -> ActivitySyncService:
     return ActivitySyncService(
         activity_repo, user_repo, strava_auth, strava_client, weather_provider
