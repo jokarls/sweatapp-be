@@ -14,10 +14,6 @@ class Settings(BaseSettings):
     STRAVA_CLIENT_SECRET: str = ""
     STRAVA_WEBHOOK_VERIFY_TOKEN: str = "default_verify_token"
 
-    # Weather Provider
-    WEATHER_PROVIDER: str = "open-meteo"  # "open-meteo" or "openweathermap"
-    OPENWEATHERMAP_API_KEY: str = ""
-
     # JWT Authentication
     JWT_SECRET_KEY: str = "your-fallback-secret-for-testing-only"
     JWT_ALGORITHM: str = "HS256"
@@ -32,10 +28,6 @@ class Settings(BaseSettings):
             "STRAVA_WEBHOOK_VERIFY_TOKEN": self.STRAVA_WEBHOOK_VERIFY_TOKEN,
             "JWT_SECRET_KEY": self.JWT_SECRET_KEY,
         }
-        
-        # Only require OpenWeatherMap API key if it is selected as the weather provider
-        if self.WEATHER_PROVIDER == "openweathermap":
-            required_fields["OPENWEATHERMAP_API_KEY"] = self.OPENWEATHERMAP_API_KEY
 
         missing_fields = [field for field, val in required_fields.items() if not val or not str(val).strip()]
         if missing_fields:
