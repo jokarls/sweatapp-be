@@ -19,7 +19,7 @@ class OpenMeteoProvider(IWeatherProvider):
         hour = dt.hour
 
         async with httpx.AsyncClient() as client:
-            params = {
+            params: dict[str, str | float] = {
                 "latitude": lat,
                 "longitude": lon,
                 "start_date": date_str,
