@@ -13,7 +13,8 @@ from app.infrastructure.db.repository import PostgresActivityRepository
 from app.infrastructure.db.token_repository import PostgresTokenRepository
 from app.infrastructure.db.user_repository import PostgresUserRepository
 from app.infrastructure.strava.client import StravaClient
-from app.infrastructure.weather.provider import OpenWeatherMapProvider
+from app.domain.interfaces import IWeatherProvider
+from app.infrastructure.weather.provider import OpenMeteoProvider, OpenWeatherMapProvider
 
 oauth2_scheme = HTTPBearer()
 
@@ -38,8 +39,10 @@ def get_strava_client() -> StravaClient:
     return StravaClient()
 
 
-def get_weather_provider() -> OpenWeatherMapProvider:
-    return OpenWeatherMapProvider(api_key=settings.OPENWEATHERMAP_API_KEY)
+def get_weather_provider() -> IWeatherProvider:
+    if settings.WEATHER_PROVIDER == "openweathermap":
+        return OpenWeatherMapProvider(api_key=settings.OPENWEATHERMAP_API_KEY)
+    return OpenMeteoProvider()
 
 
 def get_strava_auth_service(
