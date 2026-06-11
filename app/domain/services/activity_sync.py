@@ -60,6 +60,8 @@ class ActivitySyncService:
             )
 
         humidity = None
+        apparent_temp = None
+        weather_code = None
 
         # Fallback/enrichment via Weather Provider for humidity and missing temperature
         if temp is None or humidity is None:
@@ -86,6 +88,9 @@ class ActivitySyncService:
                             logger.info(f"Retrieved fallback temperature={temp}°C from weather provider.")
                         humidity = weather.get("humidity")
                         logger.info(f"Retrieved humidity={humidity}% from weather provider.")
+                        apparent_temp = weather.get("apparent_temp")
+                        weather_code = weather.get("weather_code")
+                        logger.info(f"Retrieved apparent_temp={apparent_temp}°C, weather_code={weather_code} from weather provider.")
                 except Exception as e:
                     logger.error(f"Failed to fetch weather fallback: {e}")
             else:
@@ -94,7 +99,7 @@ class ActivitySyncService:
                     "(start_latlng) is missing or invalid."
                 )
 
-        logger.info(f"Final activity sync values: temp_celsius_api={temp}, humidity_api={humidity}")
+        logger.info(f"Final activity sync values: temp_celsius_api={temp}, humidity_api={humidity}, apparent_temp={apparent_temp}, weather_code={weather_code}")
 
         # 5. Create Activity entity
         activity = Activity(
@@ -107,6 +112,8 @@ class ActivitySyncService:
             relative_effort=strava_data.get("suffer_score"),
             temp_celsius_api=temp,
             humidity_api=humidity,
+            apparent_temp_celsius_api=apparent_temp,
+            weather_code_api=weather_code,
             status=ActivityStatus.PENDING,
         )
 

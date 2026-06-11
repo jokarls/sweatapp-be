@@ -53,7 +53,7 @@ class PostgresActivityRepository(IActivityRepository):
             INSERT INTO activity (
                 id, user_id, strava_id, status, is_indoor, ignore_for_profile,
                 activity_type, start_date, duration_seconds, avg_heartrate, relative_effort,
-                temp_celsius_api, humidity_api,
+                temp_celsius_api, humidity_api, apparent_temp_celsius_api, weather_code_api,
                 weight_before_user, weight_after_user, fluid_intake_ml_user,
                 bathroom_visits_user, clothing_index_user,
                 temp_celsius_user, humidity_user,
@@ -61,7 +61,7 @@ class PostgresActivityRepository(IActivityRepository):
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
                 $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-                $21, $22, $23
+                $21, $22, $23, $24, $25
             )
             ON CONFLICT (id) DO UPDATE SET
                 status = EXCLUDED.status,
@@ -92,6 +92,8 @@ class PostgresActivityRepository(IActivityRepository):
             activity.relative_effort,
             activity.temp_celsius_api,
             activity.humidity_api,
+            activity.apparent_temp_celsius_api,
+            activity.weather_code_api,
             activity.weight_before_user,
             activity.weight_after_user,
             activity.fluid_intake_ml_user,
@@ -131,6 +133,8 @@ class PostgresActivityRepository(IActivityRepository):
             relative_effort=row["relative_effort"],
             temp_celsius_api=row["temp_celsius_api"],
             humidity_api=row["humidity_api"],
+            apparent_temp_celsius_api=row["apparent_temp_celsius_api"],
+            weather_code_api=row["weather_code_api"],
             weight_before_user=row["weight_before_user"],
             weight_after_user=row["weight_after_user"],
             fluid_intake_ml_user=row["fluid_intake_ml_user"],

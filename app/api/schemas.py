@@ -27,6 +27,8 @@ class ActivityDTO(BaseModel):
     # Weather API Data
     temp_celsius_api: float | None = None
     humidity_api: int | None = None
+    apparent_temp_celsius_api: float | None = None
+    weather_code_api: int | None = None
 
     # User Data
     weight_before_user: float | None = None
