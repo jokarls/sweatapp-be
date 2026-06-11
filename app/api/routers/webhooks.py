@@ -33,8 +33,8 @@ async def handle_webhook_event(
     """
     data = await request.json()
 
-    # Check if it's an activity creation
-    if data.get("object_type") == "activity" and data.get("aspect_type") == "create":
+    # Check if it's an activity creation or update
+    if data.get("object_type") == "activity" and data.get("aspect_type") in ("create", "update"):
         activity_id = data.get("object_id")
         athlete_id = data.get("owner_id")
 
