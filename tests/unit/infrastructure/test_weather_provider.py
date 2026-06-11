@@ -9,6 +9,10 @@ async def test_get_weather_open_meteo_mock(respx_mock):
     temps[12] = 22.5
     humidities = [0] * 24
     humidities[12] = 40
+    apparent_temps = [0.0] * 24
+    apparent_temps[12] = 24.1
+    weather_codes = [0] * 24
+    weather_codes[12] = 3  # Overcast
 
     mock_response = {
         "latitude": lat,
@@ -17,6 +21,8 @@ async def test_get_weather_open_meteo_mock(respx_mock):
             "time": [f"2024-05-31T{h:02d}:00" for h in range(24)],
             "temperature_2m": temps,
             "relative_humidity_2m": humidities,
+            "apparent_temperature": apparent_temps,
+            "weather_code": weather_codes,
         }
     }
 
@@ -30,4 +36,6 @@ async def test_get_weather_open_meteo_mock(respx_mock):
 
     assert result["temp"] == 22.5
     assert result["humidity"] == 40
+    assert result["apparent_temp"] == 24.1
+    assert result["weather_code"] == 3
     assert result["provider"] == "open-meteo"

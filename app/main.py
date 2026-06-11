@@ -19,11 +19,12 @@ logging.basicConfig(
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup: Create DB pool
     app.state.pool = await create_pool(settings.DATABASE_URL)
-    
+
     # Run database migrations
     from app.infrastructure.db.migrations import run_migrations
+
     await run_migrations(app.state.pool)
-    
+
     yield
     # Shutdown: Close DB pool
     await app.state.pool.close()
@@ -40,7 +41,6 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(activities.router, prefix="/api/v1")
 app.include_router(webhooks.router, prefix="/api/v1")
 app.include_router(statistics.router, prefix="/api/v1")
-
 
 
 @app.get("/health")

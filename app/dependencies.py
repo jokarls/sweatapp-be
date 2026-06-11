@@ -57,9 +57,7 @@ def get_activity_sync_service(
     strava_client: StravaClient = Depends(get_strava_client),
     weather_provider: IWeatherProvider = Depends(get_weather_provider),
 ) -> ActivitySyncService:
-    return ActivitySyncService(
-        activity_repo, user_repo, strava_auth, strava_client, weather_provider
-    )
+    return ActivitySyncService(activity_repo, user_repo, strava_auth, strava_client, weather_provider)
 
 
 async def get_current_user(

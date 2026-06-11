@@ -80,4 +80,3 @@ class StravaAuthService:
 
         await self.token_repo.save(token)
         return user
-

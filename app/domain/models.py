@@ -24,6 +24,8 @@ class Activity:
     relative_effort: int | None = None
     temp_celsius_api: float | None = None
     humidity_api: int | None = None
+    apparent_temp_celsius_api: float | None = None
+    weather_code_api: int | None = None
 
     # Manual Input
     weight_before_user: float | None = None
@@ -112,4 +114,3 @@ class SummaryStats:
 class UserSweatStatistics:
     summary: SummaryStats
     breakdowns: dict[str, list[BreakdownItem]]
-

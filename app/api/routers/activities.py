@@ -17,10 +17,7 @@ def encode_cursor(start_date: datetime, activity_id: UUID) -> str:
     """
     Encodes start_date and activity_id into an opaque Base64 string cursor.
     """
-    data = {
-        "start_date": start_date.isoformat(),
-        "id": str(activity_id)
-    }
+    data = {"start_date": start_date.isoformat(), "id": str(activity_id)}
     json_bytes = json.dumps(data).encode("utf-8")
     return base64.urlsafe_b64encode(json_bytes).decode("utf-8")
 

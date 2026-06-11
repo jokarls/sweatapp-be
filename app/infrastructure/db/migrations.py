@@ -18,10 +18,7 @@ async def run_migrations(pool: Pool) -> None:
         return
 
     # Get sorted list of migration SQL files
-    migration_files = sorted(
-        [f for f in MIGRATIONS_DIR.glob("*.sql") if f.is_file()],
-        key=lambda p: p.name
-    )
+    migration_files = sorted([f for f in MIGRATIONS_DIR.glob("*.sql") if f.is_file()], key=lambda p: p.name)
 
     if not migration_files:
         logger.info("No migration files found.")
@@ -54,12 +51,12 @@ async def run_migrations(pool: Pool) -> None:
             filename = path.name
             # Filename format expected: e.g. 0001_init.sql or 0002__add_index.sql
             version = filename.split(".")[0]
-            
+
             if version in applied_versions:
                 continue
 
             logger.info(f"Applying database migration: {filename}...")
-            
+
             with open(path, encoding="utf-8") as f:
                 sql_content = f.read()
 
@@ -69,9 +66,7 @@ async def run_migrations(pool: Pool) -> None:
             # Record migration in history
             description = version.split("__")[-1] if "__" in version else version
             await conn.execute(
-                "INSERT INTO schema_version (version, description) VALUES ($1, $2);",
-                version,
-                description
+                "INSERT INTO schema_version (version, description) VALUES ($1, $2);", version, description
             )
             logger.info(f"Successfully applied database migration: {filename}")
 
