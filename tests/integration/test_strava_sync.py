@@ -71,7 +71,7 @@ async def test_full_activity_sync_flow(db_pool):
 
 
 @pytest.mark.asyncio
-async def test_activity_sync_skips_when_exists(db_pool):
+async def test_activity_sync_updates_when_exists(db_pool):
     # 1. Setup Repositories
     activity_repo = PostgresActivityRepository(db_pool)
     user_repo = PostgresUserRepository(db_pool)
@@ -82,6 +82,15 @@ async def test_activity_sync_skips_when_exists(db_pool):
     strava_athlete_id = 1000
     user = User(id=user_id, strava_athlete_id=strava_athlete_id)
     await user_repo.save(user)
+
+    # Setup Token in DB
+    token = StravaToken(
+        user_id=user_id,
+        access_token="valid_access",
+        refresh_token="valid_refresh",
+        expires_at=datetime.now(UTC) + timedelta(hours=1),
+    )
+    await token_repo.save(token)
 
     # 3. Setup existing Activity in DB
     existing_activity_id = 54321
@@ -94,12 +103,22 @@ async def test_activity_sync_skips_when_exists(db_pool):
     )
     await activity_repo.save(activity)
 
-    # 4. Setup Mocks (these shouldn't be called because sync should skip)
+    # 4. Setup Mocks for Updated Data
     strava_client = MagicMock()
-    strava_client.get_activity_details = AsyncMock()
+    strava_data = {
+        "id": existing_activity_id,
+        "sport_type": "TrailRun",
+        "type": "Run",
+        "start_date": "2026-05-31T12:00:00Z",
+        "elapsed_time": 2400,
+        "average_heartrate": 165.0,
+        "suffer_score": 60,
+        "average_temp": 18.0,
+    }
+    strava_client.get_activity_details = AsyncMock(return_value=strava_data)
 
     weather_provider = MagicMock()
-    weather_provider.get_weather = AsyncMock()
+    weather_provider.get_weather = AsyncMock(return_value={"temp": 15.0, "humidity": 45})
 
     strava_auth = StravaAuthService(token_repo, strava_client)
 
@@ -108,10 +127,18 @@ async def test_activity_sync_skips_when_exists(db_pool):
         activity_repo, user_repo, strava_auth, strava_client, weather_provider
     )
 
-    # Calling sync_activity on an already existing activity should return gracefully without raising any duplicate
-    # exceptions or calling the client APIs
+    # Calling sync_activity on an already existing activity should update its fields
     await sync_service.sync_activity(existing_activity_id, strava_athlete_id)
 
-    # Verify that get_activity_details was not called
-    strava_client.get_activity_details.assert_not_called()
+    # 6. Verify Results in DB
+    updated_activity = await activity_repo.get_by_strava_id(existing_activity_id)
+
+    assert updated_activity is not None
+    assert updated_activity.id == activity.id  # Must be the same UUID
+    assert updated_activity.activity_type == "TrailRun"
+    assert updated_activity.duration_seconds == 2400
+    assert updated_activity.avg_heartrate == 165.0
+    assert updated_activity.relative_effort == 60
+    assert updated_activity.temp_celsius_api == 18.0
+
 

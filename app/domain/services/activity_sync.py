@@ -31,9 +31,6 @@ class ActivitySyncService:
     async def sync_activity(self, strava_activity_id: int, strava_athlete_id: int) -> None:
         # Check if activity already exists in database
         existing_activity = await self.activity_repo.get_by_strava_id(strava_activity_id)
-        if existing_activity:
-            logger.info(f"Activity {strava_activity_id} already exists. Skipping sync.")
-            return
 
         # 1. Find user
         user = await self.user_repo.get_by_strava_athlete_id(strava_athlete_id)
@@ -62,6 +59,11 @@ class ActivitySyncService:
         humidity = None
 
         # Fallback/enrichment via Weather Provider for humidity and missing temperature
+        if existing_activity:
+            if temp is None:
+                temp = existing_activity.temp_celsius_api
+            humidity = existing_activity.humidity_api
+
         if temp is None or humidity is None:
             start_latlng = strava_data.get("start_latlng")
             if start_latlng and len(start_latlng) == 2:
@@ -96,19 +98,33 @@ class ActivitySyncService:
 
         logger.info(f"Final activity sync values: temp_celsius_api={temp}, humidity_api={humidity}")
 
-        # 5. Create Activity entity
-        activity = Activity(
-            user_id=user.id,
-            strava_id=strava_activity_id,
-            activity_type=strava_data.get("type", "Unknown"),
-            start_date=datetime.fromisoformat(strava_data["start_date"].replace("Z", "+00:00")),
-            duration_seconds=strava_data.get("elapsed_time", 0),
-            avg_heartrate=strava_data.get("average_heartrate"),
-            relative_effort=strava_data.get("suffer_score"),
-            temp_celsius_api=temp,
-            humidity_api=humidity,
-            status=ActivityStatus.PENDING,
-        )
+        # 5. Create or update Activity entity
+        if existing_activity:
+            existing_activity.activity_type = strava_data.get("sport_type") or strava_data.get("type", "Unknown")
+            existing_activity.duration_seconds = strava_data.get("elapsed_time", 0)
+            existing_activity.avg_heartrate = strava_data.get("average_heartrate")
+            existing_activity.relative_effort = strava_data.get("suffer_score")
+            existing_activity.temp_celsius_api = temp
+            existing_activity.humidity_api = humidity
+            
+            # Re-calculate sweat loss if inputs are present
+            existing_activity.calculate_sweat_loss()
+            activity = existing_activity
+            logger.info(f"Updating existing activity {strava_activity_id}")
+        else:
+            activity = Activity(
+                user_id=user.id,
+                strava_id=strava_activity_id,
+                activity_type=strava_data.get("sport_type") or strava_data.get("type", "Unknown"),
+                start_date=datetime.fromisoformat(strava_data["start_date"].replace("Z", "+00:00")),
+                duration_seconds=strava_data.get("elapsed_time", 0),
+                avg_heartrate=strava_data.get("average_heartrate"),
+                relative_effort=strava_data.get("suffer_score"),
+                temp_celsius_api=temp,
+                humidity_api=humidity,
+                status=ActivityStatus.PENDING,
+            )
+            logger.info(f"Creating new activity {strava_activity_id}")
 
         # 6. Save to DB
         await self.activity_repo.save(activity)
