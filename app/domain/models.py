@@ -114,4 +114,3 @@ class SummaryStats:
 class UserSweatStatistics:
     summary: SummaryStats
     breakdowns: dict[str, list[BreakdownItem]]
-

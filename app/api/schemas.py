@@ -107,5 +107,3 @@ class UserSweatStatisticsDTO(BaseModel):
 
     summary: SummaryStatsDTO
     breakdowns: dict[str, list[BreakdownItemDTO]]
-
-

@@ -42,9 +42,7 @@ class ActivitySyncService:
         access_token = await self.strava_auth.get_valid_access_token(user.id)
 
         # 3. Fetch activity details
-        strava_data = await self.strava_client.get_activity_details(
-            strava_activity_id, access_token
-        )
+        strava_data = await self.strava_client.get_activity_details(strava_activity_id, access_token)
 
         # 4. Extract temperature from Strava activity details
         temp = strava_data.get("average_temp")
@@ -52,8 +50,7 @@ class ActivitySyncService:
             logger.info(f"Retrieved average_temp={temp}°C from Strava activity details.")
         else:
             logger.info(
-                "Strava activity details do not contain average_temp "
-                "(likely recorded without a thermometer sensor)."
+                "Strava activity details do not contain average_temp (likely recorded without a thermometer sensor)."
             )
 
         humidity = None
@@ -71,9 +68,7 @@ class ActivitySyncService:
             if start_latlng and len(start_latlng) == 2:
                 try:
                     # Strava provides start_date as ISO string
-                    start_date = datetime.fromisoformat(
-                        strava_data["start_date"].replace("Z", "+00:00")
-                    )
+                    start_date = datetime.fromisoformat(strava_data["start_date"].replace("Z", "+00:00"))
                     logger.info(
                         f"Attempting weather fallback/enrichment for lat={start_latlng[0]}, "
                         f"lon={start_latlng[1]} at {start_date}"
@@ -81,7 +76,7 @@ class ActivitySyncService:
                     weather = await self.weather_provider.get_weather(
                         lat=start_latlng[0], lon=start_latlng[1], timestamp=int(start_date.timestamp())
                     )
-                    
+
                     if "error" in weather:
                         logger.warning(f"Weather provider fallback failed: {weather['error']}")
                     else:
@@ -92,7 +87,10 @@ class ActivitySyncService:
                         logger.info(f"Retrieved humidity={humidity}% from weather provider.")
                         apparent_temp = weather.get("apparent_temp")
                         weather_code = weather.get("weather_code")
-                        logger.info(f"Retrieved apparent_temp={apparent_temp}°C, weather_code={weather_code} from weather provider.")
+                        logger.info(
+                            f"Retrieved apparent_temp={apparent_temp}°C, "
+                            f"weather_code={weather_code} from weather provider."
+                        )
                 except Exception as e:
                     logger.error(f"Failed to fetch weather fallback: {e}")
             else:
@@ -101,7 +99,10 @@ class ActivitySyncService:
                     "(start_latlng) is missing or invalid."
                 )
 
-        logger.info(f"Final activity sync values: temp_celsius_api={temp}, humidity_api={humidity}, apparent_temp={apparent_temp}, weather_code={weather_code}")
+        logger.info(
+            f"Final activity sync values: temp_celsius_api={temp}, humidity_api={humidity}, "
+            f"apparent_temp={apparent_temp}, weather_code={weather_code}"
+        )
 
         # 5. Create or update Activity entity
         if existing_activity:
@@ -128,9 +129,10 @@ class ActivitySyncService:
                 temp_celsius_api=temp,
                 humidity_api=humidity,
                 apparent_temp_celsius_api=apparent_temp,
-            weather_code_api=weather_code,
-            status=ActivityStatus.PENDING,
-        )logger.info(f"Creating new activity {strava_activity_id}")
+                weather_code_api=weather_code,
+                status=ActivityStatus.PENDING,
+            )
+            logger.info(f"Creating new activity {strava_activity_id}")
 
         # 6. Save to DB
         await self.activity_repo.save(activity)

@@ -38,7 +38,6 @@ class IActivityRepository(ABC):
         pass
 
 
-
 class IUserRepository(ABC):
     @abstractmethod
     async def get_by_id(self, user_id: UUID) -> User | None:
@@ -75,13 +74,9 @@ class IStravaClient(ABC):
         pass
 
     @abstractmethod
-    async def refresh_token(
-        self, client_id: str, client_secret: str, refresh_token: str
-    ) -> dict[str, Any]:
+    async def refresh_token(self, client_id: str, client_secret: str, refresh_token: str) -> dict[str, Any]:
         pass
 
     @abstractmethod
-    async def exchange_authorization_code(
-        self, client_id: str, client_secret: str, code: str
-    ) -> dict[str, Any]:
+    async def exchange_authorization_code(self, client_id: str, client_secret: str, code: str) -> dict[str, Any]:
         pass

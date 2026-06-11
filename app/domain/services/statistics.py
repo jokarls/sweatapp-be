@@ -7,9 +7,7 @@ class SweatStatisticsService:
     def calculate_statistics(self, activities: list[Activity]) -> UserSweatStatistics:
         # Filter for completed activities with valid sweat rate calculations
         valid_activities = [
-            a
-            for a in activities
-            if a.total_sweat_loss_ml is not None and a.sweat_rate_ml_per_hour is not None
+            a for a in activities if a.total_sweat_loss_ml is not None and a.sweat_rate_ml_per_hour is not None
         ]
 
         if not valid_activities:
@@ -21,11 +19,7 @@ class SweatStatisticsService:
         # 1. Overall Calculations
         total_activities = len(valid_activities)
         overall_avg_rate = round(
-            sum(
-                a.sweat_rate_ml_per_hour
-                for a in valid_activities
-                if a.sweat_rate_ml_per_hour is not None
-            )
+            sum(a.sweat_rate_ml_per_hour for a in valid_activities if a.sweat_rate_ml_per_hour is not None)
             / total_activities,
             2,
         )
@@ -58,9 +52,7 @@ class SweatStatisticsService:
         # 3. Environment/Temperature Breakdown
         temp_groups: dict[str, list[Activity]] = {"cold": [], "moderate": [], "hot": []}
         for a in valid_activities:
-            temp = (
-                a.temp_celsius_user if a.temp_celsius_user is not None else a.temp_celsius_api
-            )
+            temp = a.temp_celsius_user if a.temp_celsius_user is not None else a.temp_celsius_api
             if temp is None:
                 continue
             if temp < 10.0:

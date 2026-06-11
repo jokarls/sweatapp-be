@@ -17,9 +17,7 @@ class StravaClient(IStravaClient):
             response.raise_for_status()
             return cast("dict[str, Any]", response.json())
 
-    async def refresh_token(
-        self, client_id: str, client_secret: str, refresh_token: str
-    ) -> dict[str, Any]:
+    async def refresh_token(self, client_id: str, client_secret: str, refresh_token: str) -> dict[str, Any]:
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 "https://www.strava.com/oauth/token",
@@ -34,14 +32,11 @@ class StravaClient(IStravaClient):
                 response.raise_for_status()
             except httpx.HTTPStatusError as e:
                 raise ValueError(
-                    "Strava token refresh failed. "
-                    f"Status: {response.status_code}, Body: {response.text}"
+                    f"Strava token refresh failed. Status: {response.status_code}, Body: {response.text}"
                 ) from e
             return cast("dict[str, Any]", response.json())
 
-    async def exchange_authorization_code(
-        self, client_id: str, client_secret: str, code: str
-    ) -> dict[str, Any]:
+    async def exchange_authorization_code(self, client_id: str, client_secret: str, code: str) -> dict[str, Any]:
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 "https://www.strava.com/oauth/token",
@@ -56,8 +51,6 @@ class StravaClient(IStravaClient):
                 response.raise_for_status()
             except httpx.HTTPStatusError as e:
                 raise ValueError(
-                    "Strava token exchange failed. "
-                    f"Status: {response.status_code}, Body: {response.text}"
+                    f"Strava token exchange failed. Status: {response.status_code}, Body: {response.text}"
                 ) from e
             return cast("dict[str, Any]", response.json())
-
